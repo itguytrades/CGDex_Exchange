@@ -5,7 +5,7 @@ const tokens = (n) => {
 	return ethers.utils.parseUnits(n.toString(), 'ether')
 }
 
-let token, accounts, deployer
+let token, accounts, deployer, exchange
 
 describe('Token', () => {
 
@@ -16,6 +16,12 @@ describe('Token', () => {
     accounts = await ethers.getSigners()
     deployer = accounts[0]
     receiver = accounts[1]
+    exchange = accounts[2]
+
+ //   console.log(`Deployer: ${deployer.address}`)
+ //   console.log(`Receiver: ${receiver.address}`)
+ //   console.log(`Exchange: ${exchange.address}`)
+
   })
 
   describe('Deployment', () => {
@@ -44,7 +50,7 @@ describe('Token', () => {
   })
 
   })
-  describe('Sending Toke', () => {
+  describe('Sending Token', () => {
     let amount, transaction, result
 
     describe('Success', () => {
@@ -86,5 +92,37 @@ describe('Token', () => {
     })
 
   })
+  describe('Approving Tokens', () => {
+    let amount, transaction, result
 
-})
+    beforeEach(async () => {
+      amount = tokens(100)
+      transaction = await token.connect(deployer).approve(exchange.address, amount)
+      result = await transaction.wait()
+    })
+
+    describe('Success', () => {
+      it('allocates an allowance for delegated token spending', async () => {
+  //      console.log(`Exchange: ${exchange.address}`)
+  //      console.log(`Deployer: ${deployer.address}`)
+        expect(await token.allowance(deployer.address, exchange.address)).to.equal(amount)
+      })
+      it('emits an approval event', async () => {
+      const event = result.events[0]
+//      console.log(event)
+      expect(event.event).to.equal('Approval')
+      const args = event.args
+      expect(args.owner).to.equal(deployer.address)
+      expect(args.spender).to.equal(exchange.address)
+      expect(args.value).to.equal(amount)
+    })
+    })
+    describe('Failure', () => {
+      it('rejects invalid spender', async () => {
+        await expect(token.connect(deployer).approve('0x0000000000000000000000000000000000000000', amount)).to.be.reverted
+      })
+    })
+
+    })
+  })
+
