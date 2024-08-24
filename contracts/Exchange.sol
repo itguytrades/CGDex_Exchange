@@ -10,6 +10,7 @@ contract Exchange {
 	mapping(address => mapping(address => uint256)) public tokens;
 	mapping(uint256 => _Order) public orders;
 	uint256 public orderCount;
+	mapping(uint256 => bool) public orderCancelled;
 
 	// Orders Mapping
 
@@ -111,9 +112,6 @@ contract Exchange {
 //		uint256 amountGive;
 //		uint256 timestamp; //  when order was created
 
-
-	
-
 	orderCount = orderCount + 1;
 
 	orders[orderCount] = _Order(
@@ -136,7 +134,13 @@ contract Exchange {
 		block.timestamp
 	);
 	}
+	function cancelOrder(uint256 _id) public {
+		// Fetch order
+		_Order storage _orders = orders[_id];
+		// Cancel order
+		orderCacelled[_id] = true;
 
+	}
 
 
 }
