@@ -26,6 +26,8 @@ contract Token {
 		uint256 value
 		);
 
+		
+
 	// Send Tokes
 
 	constructor(
