@@ -36,7 +36,17 @@ contract Exchange {
 		address tokenGive,
 		uint256 amountGive,
 		uint256 timestamp
-	);	
+	);
+
+	event Cancel(
+		uint256 id,
+		address user,
+		address tokenGet,
+		uint256 amountGet,
+		address tokenGive,
+		uint256 amountGive,
+		uint256 timestamp
+	);
 
 	struct _Order {
 		// Attributes
@@ -136,10 +146,24 @@ contract Exchange {
 	}
 	function cancelOrder(uint256 _id) public {
 		// Fetch order
-		_Order storage _orders = orders[_id];
-		// Cancel order
-		orderCacelled[_id] = true;
+		_Order storage _order = orders[_id];
+	//	console.log(_orders[_id]);
+		require(address(_order.user) == msg.sender);
+		require(_order.id == _id);
 
+		// Cancel order
+		orderCancelled[_id] = true;
+		// Ensure caller is owner of order
+
+	emit Cancel(
+		_order.id,
+		msg.sender,
+		_order.tokenGet,
+		_order.amountGet,
+		_order.tokenGive,
+		_order.amountGive,
+		block.timestamp
+	);
 	}
 
 
