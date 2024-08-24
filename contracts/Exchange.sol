@@ -11,6 +11,8 @@ contract Exchange {
 	mapping(uint256 => _Order) public orders;
 	uint256 public orderCount;
 	mapping(uint256 => bool) public orderCancelled;
+	mapping(uint256 => bool) public orderFilled;
+
 
 	// Orders Mapping
 
@@ -45,6 +47,17 @@ contract Exchange {
 		uint256 amountGet,
 		address tokenGive,
 		uint256 amountGive,
+		uint256 timestamp
+	);
+
+	event Trade(
+		uint256 id,
+		address user,
+		address tokenGet,
+		uint256 amountGet,
+		address tokenGive,
+		uint256 amountGive,
+		address creator,
 		uint256 timestamp
 	);
 
@@ -122,7 +135,7 @@ contract Exchange {
 //		uint256 amountGive;
 //		uint256 timestamp; //  when order was created
 
-	orderCount = orderCount + 1;
+	orderCount++;
 
 	orders[orderCount] = _Order(
 		orderCount, // id
@@ -166,5 +179,71 @@ contract Exchange {
 	);
 	}
 
+	//---------------------------
+	// EXECUTING ORDERS
 
+
+	function fillOrder(uint256 _id) public {
+		// 1.  Must be valid orderId
+		require(_id > 0 && _id <= orderCount, "Order does not exist");
+		// 2.  Order can't be filled
+		require(!orderFilled[_id]);		
+		// 3.  Order can't be cancelled
+		require(!orderCancelled[_id]);
+
+
+
+
+		// Fetch order
+		_Order storage _order = orders[_id];
+
+		// Swapping Tokens
+		_trade(_order.id,
+			_order.user,
+			_order.tokenGet,
+			_order.amountGet,
+			_order.tokenGive,
+			_order.amountGive
+		);
+
+		// Mark order as filled
+		orderFilled[_order.id] = true;
+	}
+
+	function _trade(
+		uint256 _orderId,
+		address _user,
+		address _tokenGet,
+		uint256 _amountGet,
+		address _tokenGive,
+		uint256 _amountGive
+		) internal {
+
+
+		uint256 _feeAmount = (_amountGet * feePercent) / 100;
+
+
+			// Do trade
+			tokens[_tokenGet][msg.sender] = tokens[_tokenGet][msg.sender] - (_amountGet + _feeAmount);
+			tokens[_tokenGet][_user] = tokens[_tokenGet][_user] + _amountGet;
+
+			// Charge fees
+			tokens[_tokenGet][feeAccount] = tokens[_tokenGet][feeAccount] + _feeAmount;
+
+			tokens[_tokenGive][_user] = tokens[_tokenGive][_user] - _amountGive;
+			tokens[_tokenGive][msg.sender] = tokens[_tokenGive][msg.sender] + _amountGive;
+
+			emit Trade(
+				_orderId,
+				msg.sender,
+				_tokenGet,
+				_amountGet,
+				_tokenGive,
+				_amountGive,
+				_user,
+				block.timestamp
+			);
+	}
 }
+
+
