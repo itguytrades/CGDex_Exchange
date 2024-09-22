@@ -33,10 +33,7 @@ const Markets = () => {
         </div>
 
         )
-
     }
-
-
       <hr />
     </div>
   )
