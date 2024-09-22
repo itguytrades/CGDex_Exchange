@@ -59,7 +59,7 @@ const Navbar = () => {
           <a 
            href={config[chainId] ? `${config[chainId].explorerURL}/address/${account}` : `#`}
           target='_blank'
-          rel='noreffer'
+          rel='noreferrer'
           >{account.slice(0,5) + '...' + account.slice(38,42)}
             <Blockies 
               seed={account}

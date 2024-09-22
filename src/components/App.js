@@ -13,14 +13,13 @@ import {
   } from '../store/interactions';
 
 import Navbar from './Navbar'
+import Markets from './Markets'
 
 function App() {
   const dispatch = useDispatch()
   const loadBlockchainData = async () => {
 
-
-
-    // connect ethers to blockchain
+   // connect ethers to blockchain
 
     const provider = loadProvider(dispatch)
 
@@ -29,7 +28,7 @@ function App() {
 
     // Reload page when network changes
     window.ethereum.on('chainChanged', () => {
-      window.location.reload()
+    window.location.reload()
     })
 
     // Fetch current account & balance from Metamask
@@ -63,7 +62,7 @@ function App() {
       <main className='exchange grid'>
         <section className='exchange__section--left grid'>
 
-          {/* Markets */}
+          <Markets />
 
           {/* Balance */}
 
