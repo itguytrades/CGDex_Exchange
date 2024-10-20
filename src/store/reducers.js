@@ -71,6 +71,10 @@ const DEFAULT_EXCHANGE_STATE = {
   transaction: {
     isSuccessful: false
   },
+  allOrders: {
+    loaded: false,
+    data: []
+  },
   events: []
 }
 
