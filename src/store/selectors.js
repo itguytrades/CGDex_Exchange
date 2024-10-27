@@ -6,12 +6,13 @@ import { ethers } from 'ethers';
 const GREEN = '#25CE8F'
 const RED = '#F45353'
 
+
+const account = state => get(state, 'provider.account')
 const tokens = state => get(state, 'tokens.contracts')
 
 const allOrders = state => get(state, 'exchange.allOrders.data', [])
 const cancelledOrders = state => get(state, 'exchange.cancelledOrders.data', [])
 const filledOrders = state => get(state, 'exchange.filledOrders.data', [])
-
 
 const openOrders = state => {
   const all = allOrders(state)
@@ -28,6 +29,52 @@ const openOrders = state => {
 
 }
 
+// ------------------------------------------------------------------------------
+// MY OPEN ORDERS
+
+export const myOpenOrdersSelector = createSelector(
+    account,
+    tokens,
+    openOrders,
+    (account, tokens, orders) => {
+      if (!tokens[0] || !tokens[1]) { return }
+
+      // Filter orders created by current account
+      orders = orders.filter((o) => o.user === account)
+
+      // Filter orders by token addresses
+      orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
+      orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
+
+      // Decorate orders - add display attributes
+      orders = decorateMyOpenOrders(orders, tokens)
+
+      // Sort orders by date descending
+      orders = orders.sort((a, b) => b.timestamp - a.timestamp)
+
+      return orders
+  }
+)
+
+const decorateMyOpenOrders = (orders, tokens) => {
+  return(
+    orders.map((order) => {
+      order = decorateOrder(order, tokens)
+      order = decorateMyOpenOrder(order, tokens)
+      return(order)
+    })
+  )
+}
+
+const decorateMyOpenOrder = (order, tokens) => {
+  let orderType = order.tokenGive === tokens[1].address ? 'buy' : 'sell'
+
+  return({
+    ...order,
+    orderType,
+    orderTypeClass: (orderType === 'buy' ? GREEN : RED)
+  })
+}
 
 const decorateOrder = (order, tokens) => {
   let token0Amount, token1Amount
@@ -122,6 +169,60 @@ const tokenPriceClass = (tokenPrice, orderId, previousOrder) => {
 }
 
 // ------------------------------------------------------------------------------
+// MY FILLED ORDERS
+
+export const myFilledOrdersSelector = createSelector(
+    account,
+    tokens,
+    filledOrders,
+    (account, tokens, orders) => {
+      if (!tokens[0] || !tokens[1]) { return }
+
+      // Find our orders
+      orders = orders.filter((o) => o.user === account || o.creator === account)
+      // Filter orders for current trading pair
+      orders = orders.filter((o) => o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address)
+      orders = orders.filter((o) => o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address)
+
+      // Sort by date descending
+      orders = orders.sort((a, b) => b.timestamp - a.timestamp)
+
+      // Decorate orders - add display attributes
+      orders = decorateMyFilledOrders(orders, account, tokens)
+
+      return orders
+  }
+)
+
+const decorateMyFilledOrders = (orders, account, tokens) => {
+  return(
+    orders.map((order) => {
+      order = decorateOrder(order, tokens)
+      order = decorateMyFilledOrder(order, account, tokens)
+      return(order)
+    })
+  )
+}
+
+const decorateMyFilledOrder = (order, account, tokens) => {
+  const myOrder = order.creator === account
+
+  let orderType
+  if(myOrder) {
+    orderType = order.tokenGive === tokens[1].address ? 'buy' : 'sell'
+  } else {
+    orderType = order.tokenGive === tokens[1].address ? 'sell' : 'buy'
+  }
+
+  return({
+    ...order,
+    orderType,
+    orderClass: (orderType === 'buy' ? GREEN : RED),
+    orderSign: (orderType === 'buy' ? '+' : '-')
+  })
+}
+
+// ------------------------------------------------------------------------------
 // ORDER BOOK
 
 export const orderBookSelector = createSelector(
@@ -182,6 +283,7 @@ const decorateOrderBookOrder = (order, tokens) => {
     orderFillAction: (orderType === 'buy' ? 'sell' : 'buy')
   })
 }
+
 
 // ------------------------------------------------------------------------------
 // PRICE CHART
