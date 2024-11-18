@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 
-import dapp from '../assets/dapp.svg'
+import cgdev from '../assets/CGDev.svg'
 import eth from '../assets/eth.svg'
 
 import { loadBalances,
@@ -99,7 +99,7 @@ const Balance = () => {
 
       <div className='exchange__transfers--form'>
         <div className='flex-between'>
-          <p><small>Token</small><br /><img src={dapp} alt="Token Logo" />{symbols && symbols[0]}</p>
+          <p><small>Token</small><br /><img src={cgdev} alt="Token Logo" />{symbols && symbols[0]}</p>
           <p><small>Wallet</small><br />{tokenBalances && tokenBalances[0]}</p>
           <p><small>Exchange</small><br />{exchangeBalances && exchangeBalances[0]}</p>
         </div>

@@ -19,9 +19,9 @@ async function main() {
 
   // deploy contract
 
-  const dapp = await Token.deploy('Dapp University', 'DAPP', '1000000')
-  await dapp.deployed()
-  console.log(`DAPP Deployed to: ${dapp.address}`)
+  const cgd = await Token.deploy('CGDev Token', 'CGD', '1000000')
+  await cgd.deployed()
+  console.log(`CGD Deployed to: ${cgd.address}`)
 
   const mETH = await Token.deploy('mETH', 'mETH', '1000000')
   await mETH.deployed()

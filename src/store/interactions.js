@@ -34,6 +34,7 @@ export const loadTokens = async (provider, addresses, dispatch) => {
 
   token = new ethers.Contract(addresses[0], TOKEN_ABI, provider)
   symbol = await token.symbol()
+  console.log(symbol)
   dispatch({ type: 'TOKEN_1_LOADED', token, symbol })
 
   token = new ethers.Contract(addresses[1], TOKEN_ABI, provider)
