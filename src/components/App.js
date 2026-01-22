@@ -135,10 +135,19 @@ function App() {
     }
 
     // 6) Load orders (non-fatal if it fails)
+    const exchangeConfig = config[chainId].exchange;
+    console.log("exchangeConfig: ", exchangeConfig)
+
     try {
-      await loadAllOrders(provider, exchange, dispatch)
+      const fromBlock = exchangeConfig?.deploymentBlock ?? 0;
+      console.log("fromBlock: ", fromBlock)
+      await loadAllOrders(provider, exchange, dispatch, fromBlock);
     } catch (err) {
-      notify('warning', 'Failed to load orders (RPC may be down or contract not deployed).', err)
+      notify(
+        'warning',
+        'Failed to load orders (RPC may be rate-limiting logs). Try refresh, or switch RPC endpoint.',
+        err
+      );
     }
 
     // 7) Subscribe to events (non-fatal if it fails)

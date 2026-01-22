@@ -93,28 +93,68 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
 // ------------------------------------------------------------------------------
 // LOAD ALL ORDERS
 
-export const loadAllOrders = async (provider, exchange, dispatch) => {
+export const loadAllOrders = async (provider, exchange, dispatch, fromBlockOverride) => {
+  dispatch({ type: 'ORDERS_LOADING' }); // optional if you have it
 
-  const block = await provider.getBlockNumber()
+console.log("fromBlockOverride: ", fromBlockOverride)
 
-  // Fetch canceled orders
-  const cancelStream = await exchange.queryFilter('Cancel', 0, block)
-  const cancelledOrders = cancelStream.map(event => event.args)
 
-  dispatch({ type: 'CANCELLED_ORDERS_LOADED', cancelledOrders })
+  try {
+    const latestBlock = await provider.getBlockNumber();
 
-  // Fetch filled orders
-  const tradeStream = await exchange.queryFilter('Trade', 0, block)
-  const filledOrders = tradeStream.map(event => event.args)
+    // IMPORTANT: set a sane start block (deployment block)
+    const startBlock =
+      fromBlockOverride ??
+      exchange?.deploymentBlock ?? // if you attach it elsewhere
+      0;
 
-  dispatch({ type: 'FILLED_ORDERS_LOADED', filledOrders })
+    // Most RPCs behave better with 2k–10k block windows.
+    // Base Sepolia public RPCs often like ~2000-5000.
+    const STEP = 3000;
 
-  // Fetch all orders
-  const orderStream = await exchange.queryFilter('Order', 0, block)
-  const allOrders = orderStream.map(event => event.args)
+    const cancelledOrders = [];
+    const filledOrders = [];
+    const allOrders = [];
 
-  dispatch({ type: 'ALL_ORDERS_LOADED', allOrders })
-}
+    // Use explicit filters (more reliable than passing event name strings)
+    const cancelFilter = exchange.filters.Cancel();
+    const tradeFilter = exchange.filters.Trade();
+    const orderFilter = exchange.filters.Order();
+
+    for (let from = startBlock; from <= latestBlock; from += STEP + 1) {
+      const to = Math.min(from + STEP, latestBlock);
+
+      // Optional: progress dispatch for UI
+      dispatch({ type: 'ORDERS_SYNC_PROGRESS', from, to, latestBlock });
+
+      const [cancelChunk, tradeChunk, orderChunk] = await Promise.all([
+        exchange.queryFilter(cancelFilter, from, to),
+        exchange.queryFilter(tradeFilter, from, to),
+        exchange.queryFilter(orderFilter, from, to),
+      ]);
+
+      // push args
+      cancelledOrders.push(...cancelChunk.map(e => e.args));
+      filledOrders.push(...tradeChunk.map(e => e.args));
+      allOrders.push(...orderChunk.map(e => e.args));
+    }
+
+    dispatch({ type: 'CANCELLED_ORDERS_LOADED', cancelledOrders });
+    dispatch({ type: 'FILLED_ORDERS_LOADED', filledOrders });
+    dispatch({ type: 'ALL_ORDERS_LOADED', allOrders });
+
+    dispatch({ type: 'ORDERS_LOADED_OK' }); // optional
+  } catch (error) {
+    console.error('loadAllOrders failed:', error);
+
+    // Nice warning for UI
+    dispatch({
+      type: 'ORDERS_LOAD_FAILED',
+      error: error?.reason || error?.message || 'Failed to load orders from RPC'
+    });
+  }
+
+};
 
 //-------------------------------
 // TRANSFER TOKENS (DEPOSIT & WITHDRAWS)

@@ -16,7 +16,8 @@
   },
   "84532": {
     "exchange": {
-      "address": "0xC8641F713922Ee8102235c53f5989F7daFCe5a9f"
+      "address": "0xC8641F713922Ee8102235c53f5989F7daFCe5a9f",
+      "deploymentBlock": 36648031
     },
     "CGD": {
       "address": "0xB6f7195b6520AB3fB6A0bc34AcFeb9783fe6790B"
