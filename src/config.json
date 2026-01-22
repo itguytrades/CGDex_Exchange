@@ -1,20 +1,38 @@
 {
   "31337": {
-  	"exchange": {
-  		"address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-  	},
-  	"CGD": {
-  		"address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-  	},
-  	"mETH": {
-  		"address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-  	},
-  	"mDAI": {
-  		"address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-  	},
+    "exchange": {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+    },
+    "CGD": {
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    },
+    "mETH": {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+    },
+    "mDAI": {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+    },
     "explorerUrl": "#"
   },
-  "11155111": {
-    "explorerUrl": "https://sepolia.etherscan.io/"
+  "84532": {
+    "exchange": {
+      "address": "0xC8641F713922Ee8102235c53f5989F7daFCe5a9f"
+    },
+    "CGD": {
+      "address": "0xB6f7195b6520AB3fB6A0bc34AcFeb9783fe6790B"
+    },
+    "mETH": {
+      "address": "0x91904e74BF6dFfBfe4a3FE19381336519836FBC2"
+    },
+    "mDAI": {
+      "address": "0xCF00C51AF689fa15c9e72c4127Cebf7099FDC446"
+    },
+    "explorerUrl": "https://sepolia.basescan.org",
+    "codeHash": {
+      "exchange": "0x10c3217f23697171e93491873702f43caa1ac14b35f14200b1a806b18fc089be",
+      "CGD": "0x7fa375816095f25e7c925b285d5afa4330562277edf3bcb126b4588cc5b116ba",
+      "mETH": "0x7fa375816095f25e7c925b285d5afa4330562277edf3bcb126b4588cc5b116ba",
+      "mDAI": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+    }
   }
 }
